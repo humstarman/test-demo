@@ -35,7 +35,7 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
   echo " - CoreDNS"
   echo " - Dashboard"
   echo " - Nginx Ingress"
-  echo "-"
+  echo " -"
   if [[ "0" == "$INIT" ]]; then
     echo "---"
     echo "---"
