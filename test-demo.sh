@@ -81,7 +81,10 @@ else
   echo "use 'join' to deploy a node."
 fi
 fi
-URL=https://raw.githubusercontent.com/humstarman/k8s-install-tool-scripts/master
+PROJECT=$0
+PROJECT=${PROJECT##*/}
+PROJECT=${PROJECT%%.*}
+URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-detail/master
 ###
 #if [[ "$(cat ./staging.log)" == "0" ]]; then
 ###
@@ -138,78 +141,10 @@ fi
 ###
 if [[ "$(cat ./staging.log)" == "0" ]]; then
 ###
-  # config /etc/ansible/hosts
-  echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - config /etc/ansible/hosts."
-  #cat > /etc/ansible/hosts << EOF
-  ANSIBLE=/etc/ansible/hosts
-  echo "[master]" > $ANSIBLE
-  for ip in $MASTER; do
-    echo $ip >> $ANSIBLE
-  done
-  if $NODE_EXISTENCE; then
-    echo "[node]" >> $ANSIBLE
-    for ip in $NODE; do
-      echo $ip >> $ANSIBLE
-    done
-  fi
-  echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - /etc/ansible/hosts configured."
-  echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - check connectivity amongst hosts ..."
-  getScript $URL auto-cp-ssh-id.sh
-  getScript $URL mk-ssh-conn.sh 
-  if [[ -f ./passwd.log && -n "$(cat ./passwd.log)" ]]; then
-    echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - as ./passwd.log existed, automated make ssh connectivity."
-    ./mk-ssh-conn.sh $(cat ./passwd.log)
-    for ip in $MASTER; do
-      ssh -t root@$ip "if [ ! -x "$(command -v python)" ]; then if [ -x "$(command -v yum)" ]; then yum install -y python; fi; if [ -x "$(command -v apt-get)" ]; then apt-get install -y python; fi; fi"
-    done
-    if $NODE_EXISTENCE; then
-      NODE=$(sed s/","/" "/g ./node.csv)
-      for ip in $NODE; do
-        ssh -t root@$ip "if [ ! -x "$(command -v python)" ]; then if [ -x "$(command -v yum)" ]; then yum install -y python; fi; if [ -x "$(command -v apt-get)" ]; then apt-get install -y python; fi; fi"
-      done
-    fi
-  fi
-  if ! ansible all -m ping; then 
-    echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - connectivity checking failed."
-    echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - you should make ssh connectivity without password from this host to all the other hosts,"
-    echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - and install python."
-    echo "=== you can use the script mk-ssh-conn.sh in this directoryi, as:"
-    echo "=== ./mk-ssh-conn.sh {PASSWORD}"
-    exit 1
-  fi
-  ##
-if false; then
-  while ! yes "\n" | ansible all -m ping; do
-    echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - connectivity checking failed."
-    echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - you should make ssh connectivity without password from this host to all the other hosts."
-    # fix ssh 
-    getScript $URL auto-cp-ssh-id.sh
-    getScript $URL mk-ssh-conn.sh 
-    if [[ -f ./passwd.log && -n "$(cat ./passwd.log)" ]]; then
-      echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - as ./passwd.log existed, automated make ssh connectivity."
-      ./mk-ssh-conn.sh $(cat ./passwd.log)
-      # fix python 
-      for ip in $MASTER; do
-        ssh -t root@$ip "if [ ! -x "$(command -v python)" ]; then if [ -x "$(command -v yum)" ]; then yum install -y python; fi; if [ -x "$(command -v apt-get)" ]; then apt-get install -y python; fi; fi "
-      done
-      if $NODE_EXISTENCE; then
-        NODE=$(sed s/","/" "/g ./node.csv)
-        for ip in $NODE; do
-          ssh -t root@$ip "if [ ! -x "$(command -v python)" ]; then if [ -x "$(command -v yum)" ]; then yum install -y python; fi; if [ -x "$(command -v apt-get)" ]; then apt-get install -y python; fi; fi "
-        done
-      fi
-    else
-      echo "=== you can use the script mk-ssh-conn.sh in this directoryi, as:."
-      echo "=== ./mk-ssh-conn.sh {PASSWORD}"
-      exit 1
-    fi
-  done
-fi
-  ##
+  curl -s $URL/mk-ansible-available.sh | /bin/bash
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - connectivity checked."
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - environment checked."
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - prepare to install."
-  # 0 prepare
   ## 1 stop selinux
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - shutdown Selinux."
   curl -s -o ./shutdown-selinux.sh $URL/shutdown-selinux.sh
@@ -232,12 +167,6 @@ if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
 ###
   ## 1 download scripts
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - config cluster environment variables ... "
-  getScript $URL deal-env.sh
-  getScript $URL mk-env-conf.sh
-  getScript $URL put-this-ip.sh 
-  if $NODE_EXISTENCE; then
-    getScript $URL put-node-ip.sh
-  fi
   #getScript $URL cluster-environment-variables.sh
   curl -s $URL/cluster-environment-variables.sh | /bin/bash
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - cluster environment variables configured. "
@@ -323,7 +252,6 @@ STAGE=$[${STAGE}+1]
 ###
 if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
 ###
-  getScript $URL docker-config.sh
 #getScript $URL deploy-node.sh
   curl -s $URL/deploy-node.sh | /bin/bash
 ###
