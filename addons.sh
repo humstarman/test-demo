@@ -48,9 +48,7 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
   sleep $WAIT
   exit 0
 fi
-PROJECT=$0
-PROJECT=${PROJECT##*/}
-PROJECT=${PROJECT%%.*}
+PROJECT="test-demo"
 # https://raw.githubusercontent.com/humstarman/test-demo-addons/master/coredns/coredns.yaml
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-addons/master
 
@@ -61,9 +59,39 @@ fi
 # 1 CoreDNS
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  kubectl create -f $URL/coredns/coredns.yaml
-  echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - CoreDns deployed."
+  COMPONENT="coredns"
+  kubectl create -f $URL/${COMPONENT}/coredns.yaml
+  echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $COMPONENT deployed."
   echo $STAGE > ./${STAGE_FILE}
 fi
 
 # 2 Dashboard
+STAGE=$[${STAGE}+1]
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
+  COMPONENT="dashboard"
+  COMPONENT_URL=$URL/$COMPONENT
+  kubectl create -f $COMPONENT_URL/rbac.yaml
+  kubectl create -f $COMPONENT_URL/configmap.yaml
+  kubectl create -f $COMPONENT_URL/secret.yaml
+  kubectl create -f $COMPONENT_URL/service.yaml
+  kubectl create -f $COMPONENT_URL/controller.yaml
+  echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $COMPONENT deployed."
+  echo $STAGE > ./${STAGE_FILE}
+fi
+
+# 3 nginx ingress
+STAGE=$[${STAGE}+1]
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
+  COMPONENT="ingress"
+  COMPONENT_URL=$URL/$COMPONENT
+  kubectl create -f $COMPONENT_URL/namespace.yaml
+  kubectl create -f $COMPONENT_URL/rbac.yaml
+  kubectl create -f $COMPONENT_URL/default-backend.yaml
+  kubectl create -f $COMPONENT_URL/configmap.yaml
+  kubectl create -f $COMPONENT_URL/tcp-services-configmap.yaml
+  kubectl create -f $COMPONENT_URL/udp-services-configmap.yaml
+  kubectl create -f $COMPONENT_URL/service.yaml
+  kubectl create -f $COMPONENT_URL/with-rbac.yaml
+  echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $COMPONENT deployed."
+  echo $STAGE > ./${STAGE_FILE}
+fi
