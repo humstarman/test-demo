@@ -79,7 +79,17 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   echo $STAGE > ./${STAGE_FILE}
 fi
 
-# 3 nginx ingress
+# 3 Prometheus 
+STAGE=$[${STAGE}+1]
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
+  COMPONENT="prometheus"
+  COMPONENT_URL=$URL/$COMPONENT
+  kubectl create -f $COMPONENT_URL/manifests-all.yaml
+  echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $COMPONENT deployed."
+  echo $STAGE > ./${STAGE_FILE}
+fi
+
+# 4 nginx ingress
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   COMPONENT="ingress"
