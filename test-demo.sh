@@ -6,10 +6,11 @@ START=$(date +%s)
 FLAG=$1
 WAIT=3
 STAGE=0
-if [ ! -f ./staging.log ]; then
+STAGE_FILE=stage.main
+if [ ! -f ./${STAGE_FILE} ]; then
   INIT=0
-  touch ./staging.log
-  echo 0 > ./staging.log 
+  touch ./${STAGE_FILE}
+  echo 0 > ./${STAGE_FILE} 
   FLAG="--help"
 else
   INIT=1
@@ -84,13 +85,13 @@ fi
 PROJECT=$0
 PROJECT=${PROJECT##*/}
 PROJECT=${PROJECT%%.*}
-URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-detail/master
+URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-main/master
 ###
-#if [[ "$(cat ./staging.log)" == "0" ]]; then
+#if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
 ###
-[[ "$(cat ./staging.log)" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - checking environment ... "
+[[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - checking environment ... "
 # check curl & 
-if [[ "$(cat ./staging.log)" == "0" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
   if [ ! -x "$(command -v curl)" ]; then
     if [ -x "$(command -v yum)" ]; then
       yum makecache
@@ -102,13 +103,13 @@ if [[ "$(cat ./staging.log)" == "0" ]]; then
     fi
   fi
 fi
-[[ "$(cat ./staging.log)" == "0" ]] && curl -s $URL/check-master-node.sh | /bin/bash
-[[ "$(cat ./staging.log)" == "0" ]] && curl -s $URL/check-ansible.sh | /bin/bash
+[[ "$(cat ./${STAGE_FILE})" == "0" ]] && curl -s $URL/check-master-node.sh | /bin/bash
+[[ "$(cat ./${STAGE_FILE})" == "0" ]] && curl -s $URL/check-ansible.sh | /bin/bash
 MASTER=$(sed s/","/" "/g ./master.csv)
 #echo $MASTER
 N_MASTER=$(echo $MASTER | wc | awk -F ' ' '{print $2}')
 #echo $N_MASTER
-[[ "$(cat ./staging.log)" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $N_MASTER masters: $(cat ./master.csv)."
+[[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $N_MASTER masters: $(cat ./master.csv)."
 NODE_EXISTENCE=true
 if [ ! -f ./node.csv ]; then
   NODE_EXISTENCE=false
@@ -122,9 +123,9 @@ if $NODE_EXISTENCE; then
   #echo ${NODE}
   N_NODE=$(echo $NODE | wc | awk -F ' ' '{print $2}')
   #echo $N_NODE
-  [[ "$(cat ./staging.log)" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $N_NODE nodes: $(cat ./node.csv)."
+  [[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $N_NODE nodes: $(cat ./node.csv)."
 else
-  [[ "$(cat ./staging.log)" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - no node to install."
+  [[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - no node to install."
 fi
 # mk env file
 FILE=info.env
@@ -139,7 +140,7 @@ export URL=$URL
 EOF
 fi
 ###
-if [[ "$(cat ./staging.log)" == "0" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
 ###
   curl -s $URL/mk-ansible-available.sh | /bin/bash
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - connectivity checked."
@@ -163,7 +164,7 @@ fi
 # 1 environment variables
 STAGE=$[${STAGE}+1]
 ###
-if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
   ## 1 download scripts
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - config cluster environment variables ... "
@@ -171,106 +172,106 @@ if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
   curl -s $URL/cluster-environment-variables.sh | /bin/bash
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - cluster environment variables configured. "
 ###
-echo $STAGE > ./staging.log
+echo $STAGE > ./${STAGE_FILE}
 fi
 ###
 
 # 2 generate CA pem
 STAGE=$[${STAGE}+1]
 ###
-if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
   curl -s $URL/generate-ca-pem.sh | /bin/bash
 #getScript $URL generate-ca-pem.sh 
 ###
-  echo $STAGE > ./staging.log
+  echo $STAGE > ./${STAGE_FILE}
 fi
 ###
 
 # 3 deploy ha etcd cluster
 STAGE=$[${STAGE}+1]
 ###
-if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
   curl -s $URL/deploy-etcd.sh | /bin/bash
 #getScript $URL deploy-etcd.sh
 ###
-  echo $STAGE > ./staging.log
+  echo $STAGE > ./${STAGE_FILE}
 fi
 ###
 
 # 4 prepare kubernetes 
 STAGE=$[${STAGE}+1]
 ###
-if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
 ### at first, install Kubernetes
   curl -s $URL/install-k8s.sh | /bin/bash
 #getScript $URL install-k8s.sh
 ###
-  echo $STAGE > ./staging.log
+  echo $STAGE > ./${STAGE_FILE}
 fi
 ###
 
 # 5 deploy kubectl
 STAGE=$[${STAGE}+1]
 ###
-if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
 ### then deploy kubectl
   curl -s $URL/deploy-kubectl.sh | /bin/bash
 #getScript $URL deploy-kubectl.sh
 ###
-  echo $STAGE > ./staging.log
+  echo $STAGE > ./${STAGE_FILE}
 fi
 ###
 
 # 6 deploy flanneld
 STAGE=$[${STAGE}+1]
 ###
-if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
   curl -s $URL/deploy-flanneld.sh | /bin/bash
 ###
-  echo $STAGE > ./staging.log
+  echo $STAGE > ./${STAGE_FILE}
 fi
 ###
 
 # 7 deploy master 
 STAGE=$[${STAGE}+1]
 ###
-if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
   curl -s $URL/deploy-master.sh | /bin/bash
 ###
-  echo $STAGE > ./staging.log
+  echo $STAGE > ./${STAGE_FILE}
 fi
 ###
 
 # 8 deploy node
 STAGE=$[${STAGE}+1]
 ###
-if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
 #getScript $URL deploy-node.sh
   curl -s $URL/deploy-node.sh | /bin/bash
 ###
-  echo $STAGE > ./staging.log
+  echo $STAGE > ./${STAGE_FILE}
 fi
 ###
 
 # 9 clearance 
 STAGE=$[${STAGE}+1]
 ###
-if [[ "$(cat ./staging.log)" < "$STAGE" ]]; then
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - clearance ... "
   mkdir -p ./tmp
-  ls | grep -v -E "kube-install.sh|*.csv|staging.log|tmp" | xargs -I {} mv {} ./tmp
+  ls | grep -v -E "kube-install.sh|*.csv|${STAGE_FILE}|tmp" | xargs -I {} mv {} ./tmp
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - temporary files have been moved to ./tmp. "
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - you can delete ./tmp for free. "
 ###
-  echo $STAGE > ./staging.log
+  echo $STAGE > ./${STAGE_FILE}
 fi
 ###
 
