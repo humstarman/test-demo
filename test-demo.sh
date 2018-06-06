@@ -82,9 +82,7 @@ else
   echo "use 'join' to deploy a node."
 fi
 fi
-PROJECT=$0
-PROJECT=${PROJECT##*/}
-PROJECT=${PROJECT%%.*}
+PROJECT="test-demo"
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-main/master
 ###
 #if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
