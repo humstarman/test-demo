@@ -50,17 +50,19 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
 fi
 PROJECT="test-demo"
 # https://raw.githubusercontent.com/humstarman/test-demo-addons/master/coredns/coredns.yaml
-URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-addons/master
+URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
+TOOLS=${URL}/tools
+MAIN=${URL}/addons
 
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
-  curl -s $URL/check-k8s-cluster.sh | /bin/bash 
+  curl -s $TOOLS/check-k8s-cluster.sh | /bin/bash 
 fi
 
 # 1 CoreDNS
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   COMPONENT="coredns"
-  kubectl create -f $URL/${COMPONENT}/coredns.yaml
+  kubectl create -f $MAIN/${COMPONENT}/coredns.yaml
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $COMPONENT deployed."
   echo $STAGE > ./${STAGE_FILE}
 fi
@@ -69,7 +71,7 @@ fi
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   COMPONENT="dashboard"
-  COMPONENT_URL=$URL/$COMPONENT
+  COMPONENT_URL=$MAIN/$COMPONENT
   kubectl create -f $COMPONENT_URL/rbac.yaml
   kubectl create -f $COMPONENT_URL/configmap.yaml
   kubectl create -f $COMPONENT_URL/secret.yaml
@@ -83,7 +85,7 @@ fi
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   COMPONENT="prometheus"
-  COMPONENT_URL=$URL/$COMPONENT
+  COMPONENT_URL=$MAIN/$COMPONENT
   kubectl create -f $COMPONENT_URL/manifests-all.yaml
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $COMPONENT deployed."
   echo $STAGE > ./${STAGE_FILE}
@@ -93,7 +95,7 @@ fi
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   COMPONENT="ingress"
-  COMPONENT_URL=$URL/$COMPONENT
+  COMPONENT_URL=$MAIN/$COMPONENT
   kubectl create -f $COMPONENT_URL/namespace.yaml
   kubectl create -f $COMPONENT_URL/rbac.yaml
   kubectl create -f $COMPONENT_URL/default-backend.yaml
