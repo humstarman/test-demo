@@ -53,7 +53,6 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
   exit 0
 fi
 PROJECT="test-demo"
-# https://raw.githubusercontent.com/humstarman/test-demo-addons/master/coredns/coredns.yaml
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-update-pem/master
 
 # 0 clear expired permission & check cfssl tool
@@ -114,14 +113,14 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   echo $STAGE > ./${STAGE_FILE}
 fi
 
-# 7 kube-proxy 
+# 8 restart services 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   curl -s $URL/restart-svc.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
-# 8 clearance 
+# 9 clearance 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - Kubernetes permmisson has been updated. "
