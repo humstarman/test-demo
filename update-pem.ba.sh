@@ -53,70 +53,72 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
   exit 0
 fi
 PROJECT="test-demo"
-URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-update-pem/master
+URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
+TOOLS=${URL}/tools
+MAIN=${URL}/update-pem
 
 # 0 clear expired permission & check cfssl tool
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
-  curl -s $URL/check-k8s-cluster.sh | /bin/bash 
-  curl -s $URL/check-ansible.sh | /bin/bash 
-  getScript $URL clear-expired-pem.sh
+  curl -s $TOOLS/check-k8s-cluster.sh | /bin/bash 
+  curl -s $TOOLS/check-ansible.sh | /bin/bash 
+  getScript $MAIN clear-expired-pem.sh
   ansible all -m script -a ./clear-expired-pem.sh
-  curl -s $URL/check-cfssl.sh | /bin/bash 
+  curl -s $MAIN/check-cfssl.sh | /bin/bash 
 fi
 
 # 1 CA
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $URL/update-ca-pem.sh | /bin/bash 
+  curl -s $MAIN/update-ca-pem.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
 # 2 etcd 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $URL/update-etcd-pem.sh | /bin/bash 
+  curl -s $MAIN/update-etcd-pem.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
 # 3 kubectl 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $URL/update-kubectl-pem.sh | /bin/bash 
+  curl -s $MAIN/update-kubectl-pem.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
 # 4 flanneld 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $URL/update-flanneld-pem.sh | /bin/bash 
+  curl -s $MAIN/update-flanneld-pem.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
 # 5 kubernetes 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $URL/update-kubernetes-pem.sh | /bin/bash 
+  curl -s $MAIN/update-kubernetes-pem.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
 # 6 kubelet 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $URL/update-kubelet-pem.sh | /bin/bash 
+  curl -s $MAIN/update-kubelet-pem.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
 # 7 kube-proxy 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $URL/update-kube-proxy-pem.sh | /bin/bash 
+  curl -s $MAIN/update-kube-proxy-pem.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
 # 8 restart services 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $URL/restart-svc.sh | /bin/bash 
+  curl -s $MAIN/restart-svc.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
