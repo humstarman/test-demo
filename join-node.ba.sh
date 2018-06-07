@@ -6,7 +6,7 @@ START=$(date +%s)
 FLAG=$1
 WAIT=3
 STAGE=0
-STAGE_FILE=stage.update
+STAGE_FILE=stage.node
 if [ ! -f ./${STAGE_FILE} ]; then
   INIT=0
   touch ./${STAGE_FILE}
