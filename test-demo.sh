@@ -299,5 +299,12 @@ EOF
 fi
 echo " - For a little while, use the script ./$FILE to approve kubelet certificate."
 echo " - use 'kubectl get csr' to check the register."
+## make backup
+BAK_DIR=/var/k8s/bak
+ansible master -m shell -a "mkdir -p $BAK_DIR"
+THIS_DIR=$(cd "$(dirname "$0")";pwd)
+nohup ansible master -m copy "src=${THIS_DIR}/ dest=${BAK_DIR}" & 
+echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - backup this directory from $THIS_DIR to $BAK_DIR."
+echo " - this process runs in backgroud, so no need to wait."
 sleep $WAIT 
 exit 0
