@@ -83,7 +83,9 @@ else
 fi
 fi
 PROJECT="test-demo"
-URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-main/master
+URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
+TOOLS=${URL}/tools
+MAIN=${URL}/main
 ###
 #if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
 ###
@@ -101,8 +103,8 @@ if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
     fi
   fi
 fi
-[[ "$(cat ./${STAGE_FILE})" == "0" ]] && curl -s $URL/check-master-node.sh | /bin/bash
-[[ "$(cat ./${STAGE_FILE})" == "0" ]] && curl -s $URL/check-ansible.sh | /bin/bash
+[[ "$(cat ./${STAGE_FILE})" == "0" ]] && curl -s $TOOLS/check-master-node.sh | /bin/bash
+[[ "$(cat ./${STAGE_FILE})" == "0" ]] && curl -s $TOOLS/check-ansible.sh | /bin/bash
 MASTER=$(sed s/","/" "/g ./master.csv)
 #echo $MASTER
 N_MASTER=$(echo $MASTER | wc | awk -F ' ' '{print $2}')
@@ -140,21 +142,21 @@ fi
 ###
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
 ###
-  curl -s $URL/mk-ansible-available.sh | /bin/bash
+  curl -s $TOOLS/mk-ansible-available.sh | /bin/bash
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - connectivity checked."
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - environment checked."
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - prepare to install."
   ## 1 stop selinux
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - shutdown Selinux."
-  curl -s -o ./shutdown-selinux.sh $URL/shutdown-selinux.sh
+  curl -s -o ./shutdown-selinux.sh $TOOLS/shutdown-selinux.sh
   ansible all -m script -a ./shutdown-selinux.sh
   ## 2 stop firewall
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - stop firewall."
-  curl -s -o ./stop-firewall.sh $URL/stop-firewall.sh
+  curl -s -o ./stop-firewall.sh $TOOLS/stop-firewall.sh
   ansible all -m script -a ./stop-firewall.sh
   ## 3 mkdirs
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - prepare directories."
-  curl -s $URL/batch-mkdir.sh | /bin/bash
+  curl -s $MAIN/batch-mkdir.sh | /bin/bash
 ###
 fi
 ###
@@ -167,7 +169,7 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   ## 1 download scripts
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - config cluster environment variables ... "
   #getScript $URL cluster-environment-variables.sh
-  curl -s $URL/cluster-environment-variables.sh | /bin/bash
+  curl -s $MAIN/cluster-environment-variables.sh | /bin/bash
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - cluster environment variables configured. "
 ###
 echo $STAGE > ./${STAGE_FILE}
@@ -179,7 +181,7 @@ STAGE=$[${STAGE}+1]
 ###
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
-  curl -s $URL/generate-ca-pem.sh | /bin/bash
+  curl -s $MAIN/generate-ca-pem.sh | /bin/bash
 #getScript $URL generate-ca-pem.sh 
 ###
   echo $STAGE > ./${STAGE_FILE}
@@ -191,7 +193,7 @@ STAGE=$[${STAGE}+1]
 ###
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
-  curl -s $URL/deploy-etcd.sh | /bin/bash
+  curl -s $MAIN/deploy-etcd.sh | /bin/bash
 #getScript $URL deploy-etcd.sh
 ###
   echo $STAGE > ./${STAGE_FILE}
@@ -204,7 +206,7 @@ STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
 ### at first, install Kubernetes
-  curl -s $URL/install-k8s.sh | /bin/bash
+  curl -s $MAIN/install-k8s.sh | /bin/bash
 #getScript $URL install-k8s.sh
 ###
   echo $STAGE > ./${STAGE_FILE}
@@ -217,7 +219,7 @@ STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
 ### then deploy kubectl
-  curl -s $URL/deploy-kubectl.sh | /bin/bash
+  curl -s $MAIN/deploy-kubectl.sh | /bin/bash
 #getScript $URL deploy-kubectl.sh
 ###
   echo $STAGE > ./${STAGE_FILE}
@@ -229,7 +231,7 @@ STAGE=$[${STAGE}+1]
 ###
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
-  curl -s $URL/deploy-flanneld.sh | /bin/bash
+  curl -s $MAIN/deploy-flanneld.sh | /bin/bash
 ###
   echo $STAGE > ./${STAGE_FILE}
 fi
@@ -240,7 +242,7 @@ STAGE=$[${STAGE}+1]
 ###
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
-  curl -s $URL/deploy-master.sh | /bin/bash
+  curl -s $MAIN/deploy-master.sh | /bin/bash
 ###
   echo $STAGE > ./${STAGE_FILE}
 fi
@@ -252,7 +254,7 @@ STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
 #getScript $URL deploy-node.sh
-  curl -s $URL/deploy-node.sh | /bin/bash
+  curl -s $MAIN/deploy-node.sh | /bin/bash
 ###
   echo $STAGE > ./${STAGE_FILE}
 fi

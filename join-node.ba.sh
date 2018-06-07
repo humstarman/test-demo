@@ -65,9 +65,6 @@ URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-join-node/master
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
   curl -s $URL/check-env.sh | /bin/bash 
   curl -s $URL/check-ansible.sh | /bin/bash 
-  getScript $URL clear-expired-pem.sh
-  ansible all -m script -a ./clear-expired-pem.sh
-  curl -s $URL/check-cfssl.sh | /bin/bash 
 fi
 
 # 1 CA
