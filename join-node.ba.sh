@@ -2,6 +2,7 @@
 
 set -e
 
+# set env
 START=$(date +%s)
 FLAG=$1
 WAIT=3
@@ -59,12 +60,14 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
   exit 0
 fi
 PROJECT="test-demo"
-URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-join-node/master
+URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
+TOOLS=${URL}/tools
+MAIN=${URL}/join-node
 
 # check environment 
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
-  curl -s $URL/check-env.sh | /bin/bash 
-  curl -s $URL/check-ansible.sh | /bin/bash 
+  curl -s $TOOLS/check-env.sh | /bin/bash 
+  curl -s $TOOLS/check-ansible.sh | /bin/bash 
 fi
 
 # 1 CA
