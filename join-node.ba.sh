@@ -31,14 +31,14 @@ function getScript(){
 }
 if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
   echo " - Usage:"
-  echo " - This script is to update the permissions, including:"
-  echo " - CA"
-  echo " - ETCD"
-  echo " - Admin of Kubectl & kubeconfig file of Kubectl"
-  echo " - Flanneld"
-  echo " - Kubernetes"
-  echo " - Kubelet bootstrapping kubeconfig"
-  echo " - Kube-proxy & kubeconfig file of kube-proxy"
+  echo " - This script is for joining node(s) to Kubernetes cluster."
+  echo " ==="
+  echo " - This script MUST run on a Kubernets MASTER !!!"
+  echo " ==="
+  echo " - The info about new node(s) should be offered."
+  echo " - As an instance:"
+  echo " - generate a file named new.csv,"
+  echo " - new node IPs are in terms of CSV, as {IP_1},{IP_2},{IP_3}."
   echo " -"
   if [[ "0" == "$INIT" ]]; then
     echo "---"
@@ -48,16 +48,22 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
     echo "the help document shown for default."
     echo "Re-run the script to function."
     echo "---"
+    FILE=new.csv.tmpl
+    if [ ! -f "$FILE" ]; then
+      touch $FILE
+      echo "1.1.1.1,1.1.1.2,1.1.1.3" > $FILE
+      sed -i s/" "/","/g $FILE
+    fi
   fi
   sleep $WAIT
   exit 0
 fi
 PROJECT="test-demo"
-URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-update-pem/master
+URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-join-node/master
 
-# 0 clear expired permission & check cfssl tool
+# check environment 
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
-  curl -s $URL/check-k8s-cluster.sh | /bin/bash 
+  curl -s $URL/check-env.sh | /bin/bash 
   curl -s $URL/check-ansible.sh | /bin/bash 
   getScript $URL clear-expired-pem.sh
   ansible all -m script -a ./clear-expired-pem.sh
@@ -126,7 +132,7 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - Kubernetes permmisson has been updated. "
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - clearance ... "
   mkdir -p ./tmp
-  ls | grep -v -E "kube-install.sh|*.csv|stage.*|tmp" | xargs -I {} mv {} ./tmp
+  ls | grep -v -E "*.ba.sh|*.csv|stage.*|tmp" | xargs -I {} mv {} ./tmp
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - temporary files have been moved to ./tmp. "
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - you can delete ./tmp for free. "
   echo $STAGE > ./${STAGE_FILE}
