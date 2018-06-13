@@ -301,6 +301,6 @@ echo " - use 'kubectl get csr' to check the register."
 ## make backup
 THIS_DIR=$(cd "$(dirname "$0")";pwd)
 curl -s $TOOLS/mk-backup.sh | /bin/bash
-echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - backup import info from $THIS_DIR to /var/k8s/bak."
+echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - backup important info from $THIS_DIR to /var/k8s/bak."
 sleep $WAIT 
 exit 0
