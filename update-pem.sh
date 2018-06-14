@@ -147,7 +147,9 @@ fi
 EOF
   chmod +x $FILE
 fi
-sleep $WAIT
-./${FILE}
+for i in $(seq -s " " 1 $WAIT); do
+  sleep $WAIT
+  ./${FILE}
+done
 echo " - now, use 'kubectl get node' to check the status."
 exit 0
