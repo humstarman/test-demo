@@ -152,4 +152,5 @@ for i in $(seq -s " " 1 $WAIT); do
   ./${FILE}
 done
 echo " - now, use 'kubectl get node' to check the status."
+kubectl get node
 exit 0
