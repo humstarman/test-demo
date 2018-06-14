@@ -173,8 +173,7 @@ echo " - use 'kubectl get csr' to check the register."
 curl -s $TOOLS/re-set-env.sh | /bin/bash
 ## make backup
 THIS_DIR=$(cd "$(dirname "$0")";pwd)
-nohup curl -s $TOOLS/mk-backup.sh | /bin/bash
+curl -s $TOOLS/mk-backup.sh | /bin/bash
 echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - backup import info from $THIS_DIR to /var/k8s/bak."
-echo " - this process runs in backgroud, so no need to wait."
 sleep $WAIT
 exit 0
