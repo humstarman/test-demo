@@ -132,6 +132,8 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 fi
 
 # ending
+echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - As updating permmisons, re-approving certificate is needed."
+echo " - sleep $WAIT sec, then apporve."
 FILE=approve-pem.sh
 if [ ! -f "$FILE" ]; then
   cat > $FILE << EOF
@@ -145,8 +147,7 @@ fi
 EOF
   chmod +x $FILE
 fi
-echo " - As updating permmisons, re-approving certificate is needed."
-echo " - For a little while, use the script ./$FILE to approve kubelet certificate."
-echo " - use 'kubectl get csr' to check the register."
-sleep $WAIT 
+sleep $WAIT
+./${FILE}
+echo " - now, use 'kubectl get node' to check the status."
 exit 0
