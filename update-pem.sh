@@ -153,4 +153,6 @@ for i in $(seq -s " " 1 $WAIT); do
 done
 echo " - now, use 'kubectl get node' to check the status."
 kubectl get node
+echo " - if there is/are NotReady node/nodes, use 'kubectl get csr' to check the register status."
+echo " - use ./$FILE to approve certificate."
 exit 0
