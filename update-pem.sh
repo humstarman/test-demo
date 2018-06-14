@@ -60,6 +60,7 @@ MAIN=${URL}/update-pem
 # 0 clear expired permission & check cfssl tool
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
   curl -s $TOOLS/check-k8s-cluster.sh | /bin/bash 
+  curl -s $TOOLS/check-needed-files.sh | /bin/bash
   curl -s $TOOLS/check-ansible.sh | /bin/bash 
   getScript $MAIN clear-expired-pem.sh
   ansible all -m script -a ./clear-expired-pem.sh

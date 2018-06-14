@@ -66,7 +66,9 @@ MAIN=${URL}/join-node
 
 # 0 check environment 
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
-  curl -s $TOOLS/check-env.sh | /bin/bash 
+  curl -s $TOOLS/check-k8s-cluster.sh | /bin/bash
+  curl -s $TOOLS/check-needed-files.sh | /bin/bash 
+  curl -s $TOOLS/check-new-one.sh | /bin/bash 
   curl -s $TOOLS/check-ansible.sh | /bin/bash 
   curl -s $TOOLS/mk-ansible-available.sh | /bin/bash
   ## 1 shutdown selinux
