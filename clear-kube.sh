@@ -29,6 +29,7 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
   echo " - Dangerous script !!!"
   echo " -"
   echo " - use this token: "
+  [ -z "$TOKEN" ] && TOKEN=$(cat ./${STAGE_FILE})
   echo " - $TOKEN"
   echo " - as the input of this script, and MUST on Kubernetes MASTER to function."
   if [[ "0" == "$INIT" ]]; then
