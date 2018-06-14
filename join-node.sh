@@ -114,14 +114,14 @@ fi
 # 5 deploy flanneld 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $URL/deploy-flanneld.sh | /bin/bash 
+  curl -s $MAIN/deploy-flanneld.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
 # 5 deploy node 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $URL/deploy-node.sh | /bin/bash 
+  curl -s $MAIN/deploy-node.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
