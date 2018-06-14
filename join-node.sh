@@ -141,7 +141,7 @@ MINUTE=$[$ELAPSED/60]
 NEW=$(sed s/","/" "/g ./new.csv)
 N_NEW=$(echo $NEW | wc -w)
 echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - summary: "
-if [[ "1" == "N_NEW" ]]; then
+if [[ "1" == "$N_NEW" ]]; then
   echo " - add only one new node into Kubernetes cluster elapsed: $ELAPSED sec, approximately $MINUTE ~ $[$MINUTE+1] min."
 else
   echo " - add $N_NEW new nodes into Kubernetes cluster elapsed: $ELAPSED sec, approximately $MINUTE ~ $[$MINUTE+1] min."
