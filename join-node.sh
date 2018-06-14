@@ -134,7 +134,15 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 fi
 
 # ending
-[ -z "$N_NODE" ] && N_NODE=0
+MASTER=$(sed s/","/" "/g ./master.csv)
+N_MASTER=$(echo $MASTER | wc -w)
+if [ ! -f ./node.csv ]; then
+  N_NODE=0
+else
+  NODE=$(sed s/","/" "/g ./node.csv)
+  N_NODE=$(echo $NODE | wc -w)
+  [ -z "$N_NODE" ] && N_NODE=0
+fi 
 TOTAL=$[${N_MASTER}+${N_NODE}]
 END=$(date +%s)
 ELAPSED=$[$END-$START]
