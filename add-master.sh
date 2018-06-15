@@ -98,35 +98,49 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   echo $STAGE > ./${STAGE_FILE}
 fi
 
-# 3 prepare kubernetes node componenets
+# 3 deploy etcd 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $MAIN/cp-kubernetes-node-components.sh | /bin/bash 
+  curl -s $MAIN/deploy-etcd.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
-# 4 cp kubectl 
+# 4 prepare kubernetes master componenets
+STAGE=$[${STAGE}+1]
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
+  curl -s $MAIN/cp-kubernetes-master-components.sh | /bin/bash 
+  echo $STAGE > ./${STAGE_FILE}
+fi
+
+# 5 cp kubectl 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   curl -s $MAIN/cp-kubectl.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
-# 5 deploy flanneld 
+# 6 deploy flanneld 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   curl -s $MAIN/deploy-flanneld.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
-# 5 deploy node 
+# 7 deploy master 
+STAGE=$[${STAGE}+1]
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
+  curl -s $MAIN/deploy-master.sh | /bin/bash 
+  echo $STAGE > ./${STAGE_FILE}
+fi
+
+# 8 deploy node 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   curl -s $MAIN/deploy-node.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
-# 6 clearance 
+# 8 clearance 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   curl -s $TOOLS/clearance.sh | /bin/bash
