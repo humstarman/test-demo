@@ -101,7 +101,7 @@ fi
 # 3 deploy etcd 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
-  curl -s $MAIN/deploy-etcd.sh | /bin/bash 
+  curl -s $MAIN/cp-etcd-pem.sh | /bin/bash 
   echo $STAGE > ./${STAGE_FILE}
 fi
 
@@ -193,7 +193,7 @@ fi
 echo " - For a little while, use the script ./$FILE to approve kubelet certificate."
 echo " - use 'kubectl get csr' to check the register."
 ## re-set env
-curl -s $TOOLS/re-set-env.sh | /bin/bash
+curl -s $TOOLS/re-set-env-after-master.sh | /bin/bash
 ## make backup
 THIS_DIR=$(cd "$(dirname "$0")";pwd)
 curl -s $TOOLS/mk-backup.sh | /bin/bash
