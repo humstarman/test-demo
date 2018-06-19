@@ -52,7 +52,11 @@ fi
 PROJECT="test-demo"
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
 TOOLS=${URL}/tools
-MAIN=${URL}/clear-kube
+THIS_FILE=$0
+PREFIX=$THIS_FILE
+PREFIX=${PREFIX##*/}
+PREFIX=${PREFIX%.*}
+MAIN=${URL}/${PREFIX}
 
 # 0 set env 
 curl -s $TOOLS/restore-info-from-backup.sh | /bin/bash

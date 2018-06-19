@@ -52,7 +52,11 @@ PROJECT="test-demo"
 # https://raw.githubusercontent.com/humstarman/test-demo-addons/master/coredns/coredns.yaml
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
 TOOLS=${URL}/tools
-MAIN=${URL}/addons
+THIS_FILE=$0
+PREFIX=$THIS_FILE
+PREFIX=${PREFIX##*/}
+PREFIX=${PREFIX%.*}
+MAIN=${URL}/${PREFIX}
 
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
   curl -s $TOOLS/check-k8s-cluster.sh | /bin/bash 

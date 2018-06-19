@@ -55,7 +55,11 @@ fi
 PROJECT="test-demo"
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
 TOOLS=${URL}/tools
-MAIN=${URL}/update-pem
+THIS_FILE=$0
+PREFIX=$THIS_FILE
+PREFIX=${PREFIX##*/}
+PREFIX=${PREFIX%.*}
+MAIN=${URL}/${PREFIX}
 
 # 0 clear expired permission & check cfssl tool
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then

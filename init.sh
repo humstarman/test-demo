@@ -85,7 +85,11 @@ fi
 PROJECT="test-demo"
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
 TOOLS=${URL}/tools
-MAIN=${URL}/init
+THIS_FILE=$0
+PREFIX=$THIS_FILE
+PREFIX=${PREFIX##*/}
+PREFIX=${PREFIX%.*}
+MAIN=${URL}/${PREFIX}
 ###
 #if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
 ###
