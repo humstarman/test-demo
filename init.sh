@@ -6,7 +6,7 @@ START=$(date +%s)
 FLAG=$1
 WAIT=3
 STAGE=0
-STAGE_FILE=stage.main
+STAGE_FILE=stage.init
 if [ ! -f ./${STAGE_FILE} ]; then
   INIT=0
   touch ./${STAGE_FILE}
@@ -85,7 +85,7 @@ fi
 PROJECT="test-demo"
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
 TOOLS=${URL}/tools
-MAIN=${URL}/main
+MAIN=${URL}/init
 ###
 #if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
 ###
