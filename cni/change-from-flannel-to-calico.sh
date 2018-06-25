@@ -87,7 +87,14 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   echo $STAGE > ./${STAGE_FILE}
 fi
 
-# 4 clearance 
+# 4 replace node componenets 
+STAGE=$[${STAGE}+1]
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
+  curl -s $MAIN/deploy-cli-tool.sh | /bin/bash
+  echo $STAGE > ./${STAGE_FILE}
+fi
+
+# 5 clearance 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   curl -s $TOOLS/clearance.sh | /bin/bash
