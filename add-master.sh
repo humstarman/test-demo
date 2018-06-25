@@ -145,7 +145,7 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   echo $STAGE > ./${STAGE_FILE}
 fi
 
-# 8 clearance 
+# 9 clearance 
 STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   curl -s $TOOLS/clearance.sh | /bin/bash
