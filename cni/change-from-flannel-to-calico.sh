@@ -86,3 +86,30 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
   curl -s $MAIN/replace-node-components.sh | /bin/bash
   echo $STAGE > ./${STAGE_FILE}
 fi
+
+# 4 clearance 
+STAGE=$[${STAGE}+1]
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
+  curl -s $TOOLS/clearance.sh | /bin/bash
+  echo $STAGE > ./${STAGE_FILE}
+fi
+
+# ending
+echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - CNI changed from Flannel to Calico"
+FILE=approve-pem.sh
+if [ ! -f "$FILE" ]; then
+  cat > $FILE << EOF
+#!/bin/bash
+CSRS=\$(kubectl get csr | grep Pending | awk -F ' ' '{print \$1}')
+if [ -n "\$CSRS" ]; then
+  for CSR in \$CSRS; do
+    kubectl certificate approve \$CSR
+  done
+fi
+EOF
+  chmod +x $FILE
+fi
+echo " - For a little while, use the script ./$FILE to approve kubelet certificate, if needed."
+echo " - use 'kubectl get csr' to check the register, if needed."
+sleep $WAIT
+exit 0
