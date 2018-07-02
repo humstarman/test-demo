@@ -60,7 +60,7 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
   exit 0
 fi
 PROJECT="test-demo"
-BRANCH=master
+BRANCH=v1.10
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
