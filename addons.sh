@@ -3,7 +3,6 @@
 set -e
 
 START=$(date +%s)
-FLAG=$1
 WAIT=3
 STAGE=0
 STAGE_FILE=stage.addons
@@ -11,46 +10,55 @@ if [ ! -f ./${STAGE_FILE} ]; then
   INIT=0
   touch ./${STAGE_FILE}
   echo 0 > ./${STAGE_FILE} 
-  FLAG="--help"
 else
   INIT=1
 fi
-if false; then
-INIT=1
-FLAG=$1
-if [[ "0" == "$INIT" ]]; then
-  sed -i s/"^INIT=0$"/"INIT=1"/g $0
-  FLAG="--help"
-fi
-fi
-function getScript(){
+getScript () {
   URL=$1
   SCRIPT=$2
   curl -s -o ./$SCRIPT $URL/$SCRIPT
   chmod +x ./$SCRIPT
 }
-if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
-  echo " - Usage:"
-  echo " - This script is for the installation of:"
-  echo " - CoreDNS"
-  echo " - Dashboard"
-  echo " - Nginx Ingress"
-  echo " -"
-  if [[ "0" == "$INIT" ]]; then
-    echo "---"
-    echo "---"
-    echo "---"
-    echo "If you run the script for the first time,"
-    echo "the help document shown for default."
-    echo "Re-run the script to function."
-    echo "---"
-  fi
-  sleep $WAIT
-  exit 0
+show_help () {
+cat << USAGE
+usage: $0
+  - This script is for the installation of:
+  - CoreDNS
+  - Dashboard
+  - Nginx Ingress
+  -
+USAGE
+if [[ "0" == "$INIT" ]]; then
+  cat << USAGE
+  ---
+  ---
+  ---
+  If you run the script for the first time,
+  the help document shown for default.
+  Re-run the script to function.
+  ---
+USAGE
 fi
+sleep $WAIT
+exit 0
+}
+if [[ "0" == "$INIT" ]]; then
+  show_help
+fi  
+# Get Opts
+while getopts "h" opt; do 
+    case "$opt" in
+    h)  show_help
+        ;;
+    ?)
+        echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - unkonw argument."
+        exit 1
+        ;;
+    esac
+done
 PROJECT="test-demo"
 # https://raw.githubusercontent.com/humstarman/test-demo-addons/master/coredns/coredns.yaml
-BRANCH=v1.11_flannel
+BRANCH=master
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
