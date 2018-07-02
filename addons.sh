@@ -58,7 +58,7 @@ while getopts "h" opt; do
 done
 PROJECT="test-demo"
 # https://raw.githubusercontent.com/humstarman/test-demo-addons/master/coredns/coredns.yaml
-BRANCH=master
+BRANCH=v1.11_flannel
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
