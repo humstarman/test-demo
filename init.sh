@@ -3,7 +3,6 @@
 set -e
 
 START=$(date +%s)
-FLAG=$1
 WAIT=3
 STAGE=0
 STAGE_FILE=stage.init
@@ -11,79 +10,73 @@ if [ ! -f ./${STAGE_FILE} ]; then
   INIT=0
   touch ./${STAGE_FILE}
   echo 0 > ./${STAGE_FILE} 
-  FLAG="--help"
 else
   INIT=1
 fi
-if false; then
-INIT=1
-FLAG=$1
-if [[ "0" == "$INIT" ]]; then
-  sed -i s/"^INIT=0$"/"INIT=1"/g $0
-  FLAG="--help"
-fi
-fi
-function getScript(){
+getScript () {
   URL=$1
   SCRIPT=$2
   curl -s -o ./$SCRIPT $URL/$SCRIPT
   chmod +x ./$SCRIPT
 }
-if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
-  echo " - Usage:"
-  echo "To use this auto deployment tool, master and node (nonessential) info should be offered."
-  echo "As an instance:"
-  echo "- generate a file named master.csv (node.csv),"
-  echo "- master (node) IPs are in terms of CSV, as {MASTER_IP_1},{MASTER_IP_2},{MASTER_IP_3}."
-  echo "-"
-  echo "In addition, if all the hosts staisfy that:"
-  echo "=== all the ssh usernames are root, "
-  echo "=== all the ssh passwords are the same."
-  echo "put the password into ./passwd.log"
-  echo "-"
-  echo "After master, node and password info configured, run this script."
-  if [[ "0" == "$INIT" ]]; then
-    echo "---"
-    echo "---"
-    echo "---"
-    echo "If you run the script for the first time,"
-    echo "the help document shown for default."
-    echo "Re-run the script to function."
-    echo "---"
-    FILE=master.csv.tmpl
-    if [ ! -f "$FILE" ]; then
-      touch $FILE 
-      echo "1.1.1.1,1.1.1.2,1.1.1.3" > $FILE
-      sed -i s/" "/","/g $FILE
-    fi
-    FILE2=node.csv.tmpl
-    [ -f "$FILE2" ] || cp $FILE $FILE2 
-    FILE=passwd.log.tmpl
-    if [ ! -f "$FILE" ]; then 
-      touch $FILE
-      echo "ssh-passwod" > $FILE
-    fi
+show_help () {
+cat << USAGE
+usage: $0
+  To use this auto deployment tool, master and node (nonessential) info should be offered.
+  As an instance:
+  - generate a file named master.csv (node.csv),
+  - master (node) IPs are in terms of CSV, as {MASTER_IP_1},{MASTER_IP_2},{MASTER_IP_3}.
+  -
+  In addition, if all the hosts staisfy that:
+  === all the ssh usernames are root,
+  === all the ssh passwords are the same.
+  put the password into ./passwd.log
+  -
+  After master, node and password info configured, run this script.
+USAGE
+if [[ "0" == "$INIT" ]]; then
+  cat << USAGE
+  ---
+  ---
+  ---
+  If you run the script for the first time,
+  the help document shown for default.
+  Re-run the script to function.
+  ---
+USAGE
+  FILE=master.csv.tmpl
+  if [ ! -f "$FILE" ]; then
+    touch $FILE 
+    echo "1.1.1.1,1.1.1.2,1.1.1.3" > $FILE
+    sed -i s/" "/","/g $FILE
   fi
-  sleep $WAIT
-  exit 0
+  FILE2=node.csv.tmpl
+  [ -f "$FILE2" ] || cp $FILE $FILE2 
+  FILE=passwd.log.tmpl
+  if [ ! -f "$FILE" ]; then 
+    touch $FILE
+    echo "ssh-passwod" > $FILE
+  fi
 fi
-#curl -s https://raw.githubusercontent.com/humstarman/kube-install/master/test.sh | /bin/bash
-if false; then
-if [ "init" == "$1" ]; then
-  #curl -s https://raw.githubusercontent.com/humstarman/kube-install/master/test.sh $2 | /bin/bash - $2
-  curl -s -o /tmp/test.sh https://raw.githubusercontent.com/humstarman/kube-install/master/test.sh
-  chmod +x /tmp/test.sh
-  /tmp/test.sh $2
-elif [ "join" == "$1" ]; then
-  echo 1
-else
-  echo " - Usage:"
-  echo "use 'init' to deploy a master;"
-  echo "use 'join' to deploy a node."
-fi
-fi
+sleep $WAIT
+exit 0
+}
+if [[ "0" == "$INIT" ]]; then
+  show_help
+fi  
+# Get Opts
+while getopts "h" opt; do 
+    case "$opt" in
+    h)  show_help
+        ;;
+    ?)
+        echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - unkonw argument."
+        exit 1
+        ;;
+    esac
+done
 PROJECT="test-demo"
-BRANCH=v1.10
+BRANCH=master
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
