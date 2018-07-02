@@ -4,7 +4,6 @@ set -e
 
 # set env
 START=$(date +%s)
-FLAG=$1
 WAIT=3
 STAGE=0
 STAGE_FILE=stage.node
@@ -12,55 +11,64 @@ if [ ! -f ./${STAGE_FILE} ]; then
   INIT=0
   touch ./${STAGE_FILE}
   echo 0 > ./${STAGE_FILE} 
-  FLAG="--help"
 else
   INIT=1
 fi
-if false; then
-INIT=1
-FLAG=$1
-if [[ "0" == "$INIT" ]]; then
-  sed -i s/"^INIT=0$"/"INIT=1"/g $0
-  FLAG="--help"
-fi
-fi
-function getScript(){
+getScript () {
   URL=$1
   SCRIPT=$2
   curl -s -o ./$SCRIPT $URL/$SCRIPT
   chmod +x ./$SCRIPT
 }
-if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
-  echo " - Usage:"
-  echo " - This script is for joining node(s) to Kubernetes cluster."
-  echo " ==="
-  echo " - This script MUST run on a Kubernets MASTER !!!"
-  echo " ==="
-  echo " - The info about new node(s) should be offered."
-  echo " - As an instance:"
-  echo " - generate a file named new.csv,"
-  echo " - new node IPs are in terms of CSV, as {IP_1},{IP_2},{IP_3}."
-  echo " -"
-  if [[ "0" == "$INIT" ]]; then
-    echo "---"
-    echo "---"
-    echo "---"
-    echo "If you run the script for the first time,"
-    echo "the help document shown for default."
-    echo "Re-run the script to function."
-    echo "---"
-    FILE=new.csv.tmpl
-    if [ ! -f "$FILE" ]; then
-      touch $FILE
-      echo "1.1.1.1,1.1.1.2,1.1.1.3" > $FILE
-      sed -i s/" "/","/g $FILE
-    fi
+show_help () {
+cat << USAGE
+usage: $0
+  - This script is for joining node(s) to Kubernetes cluster.
+  ===
+  - This script MUST run on a Kubernets MASTER !!!
+  ===
+  - The info about new node(s) should be offered.
+  - As an instance:
+  - generate a file named new.csv,
+  - new node IPs are in terms of CSV, as {IP_1},{IP_2},{IP_3}.
+  -
+USAGE
+if [[ "0" == "$INIT" ]]; then
+  cat << USAGE
+  ---
+  ---
+  ---
+  If you run the script for the first time,
+  the help document shown for default.
+  Re-run the script to function.
+  ---
+USAGE
+  FILE=new.csv.tmpl
+  if [ ! -f "$FILE" ]; then
+    touch $FILE
+    echo "1.1.1.1,1.1.1.2,1.1.1.3" > $FILE
+    sed -i s/" "/","/g $FILE
   fi
-  sleep $WAIT
-  exit 0
 fi
+sleep $WAIT
+exit 0
+}
+if [[ "0" == "$INIT" ]]; then
+  show_help
+fi  
+# Get Opts
+while getopts "h" opt; do 
+    case "$opt" in
+    h)  show_help
+        ;;
+    ?)
+        echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - unkonw argument."
+        exit 1
+        ;;
+    esac
+done
 PROJECT="test-demo"
-BRANCH=v1.10
+BRANCH=master
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0

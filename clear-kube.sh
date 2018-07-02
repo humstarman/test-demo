@@ -3,7 +3,6 @@
 set -e
 
 START=$(date +%s)
-FLAG=$1
 WAIT=3
 STAGE=0
 STAGE_FILE=stage.clear
@@ -12,45 +11,65 @@ if [ ! -f ./${STAGE_FILE} ]; then
   touch ./${STAGE_FILE}
   TOKEN=$(head -c 16 /dev/urandom | od -An -t x | tr -d ' ')
   echo $TOKEN > ./${STAGE_FILE} 
-  FLAG="--help"
 else
   INIT=1
 fi
-function getScript(){
+getScript () {
   URL=$1
   SCRIPT=$2
   curl -s -o ./$SCRIPT $URL/$SCRIPT
   chmod +x ./$SCRIPT
 }
-if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
-  echo " - Dangerous script !!!"
-  echo " - This script is to used to clear Kubenetes in this cluster !!!"
-  echo " - Dangerous script !!!"
-  echo " - Dangerous script !!!"
-  echo " -"
-  echo " - use this token: "
-  [ -z "$TOKEN" ] && TOKEN=$(cat ./${STAGE_FILE})
-  echo " - $TOKEN"
-  echo " - as the input of this script, and MUST on Kubernetes MASTER to function."
-  if [[ "0" == "$INIT" ]]; then
-    echo "---"
-    echo "---"
-    echo "---"
-    echo "If you run the script for the first time,"
-    echo "the help document shown for default."
-    echo "Re-run the script to function."
-    echo "---"
-  fi
-  sleep $WAIT
-  exit 0
+show_help () {
+[ -z "$TOKEN" ] && TOKEN=$(cat ./${STAGE_FILE})
+cat << USAGE
+usage: $0 [ -t TOKEN ]
+  - Dangerous script !!!
+  - This script is to used to clear Kubenetes in this cluster !!!
+  - Dangerous script !!!
+  - Dangerous script !!!
+  -
+  - use this token:
+  - $TOKEN
+  - as the input of this script, and MUST on Kubernetes MASTER to function.
+USAGE
+if [[ "0" == "$INIT" ]]; then
+  cat << USAGE
+  ---
+  ---
+  ---
+  If you run the script for the first time,
+  the help document shown for default.
+  Re-run the script to function.
+  ---
+USAGE
 fi
-if [[ "$@" != "$(cat ./${STAGE_FILE})" ]]; then
+sleep $WAIT
+exit 0
+}
+if [[ "0" == "$INIT" ]]; then
+  show_help
+fi  
+# Get Opts
+while getopts "ht:" opt; do 
+    case "$opt" in
+    h)  show_help
+        ;;
+    t)  INPUT_TOKEN=$OPTARG
+        ;;
+    ?)
+        echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - unkonw argument."
+        exit 1
+        ;;
+    esac
+done
+if [[ "$INPUT_TOKEN" != "$(cat ./${STAGE_FILE})" ]]; then
   echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - token mismatched !!!"
   sleep $WAIT
   exit 1
 fi
 PROJECT="test-demo"
-BRANCH=v1.10
+BRANCH=master
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
