@@ -50,7 +50,8 @@ if [[ "$@" != "$(cat ./${STAGE_FILE})" ]]; then
   exit 1
 fi
 PROJECT="test-demo"
-URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
+BRANCH=master
+URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
 PREFIX=$THIS_FILE

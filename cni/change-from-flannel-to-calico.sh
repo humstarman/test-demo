@@ -49,7 +49,8 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
 fi
 PROJECT="test-demo"
 # https://raw.githubusercontent.com/humstarman/test-demo-addons/master/coredns/coredns.yaml
-URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
+BRANCH=master
+URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
 PREFIX=$THIS_FILE

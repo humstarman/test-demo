@@ -53,7 +53,8 @@ if [[ "-h" == "$FLAG" || "--help" == "$FLAG" ]]; then
   exit 0
 fi
 PROJECT="test-demo"
-URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/master
+BRANCH=master
+URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
 PREFIX=$THIS_FILE
