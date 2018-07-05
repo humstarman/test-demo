@@ -225,7 +225,7 @@ STAGE=$[${STAGE}+1]
 ###
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
-  curl -s $MAIN/deploy-flanneld.sh | /bin/bash
+  #curl -s $MAIN/deploy-flanneld.sh | /bin/bash
 ###
   echo $STAGE > ./${STAGE_FILE}
 fi
@@ -255,7 +255,32 @@ if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 fi
 ###
 
-# 9 clearance 
+# 9 deploy calico 
+STAGE=$[${STAGE}+1]
+###
+if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
+###
+#getScript $URL deploy-node.sh
+FILE=approve-pem.sh
+  cat > $FILE << EOF
+#!/bin/bash
+CSRS=\$(kubectl get csr | grep Pending | awk -F ' ' '{print \$1}')
+if [ -n "\$CSRS" ]; then
+  for CSR in \$CSRS; do
+    kubectl certificate approve \$CSR
+  done
+fi
+EOF
+  chmod +x $FILE
+  sleep $WAIT 
+  ./${FILE}
+  curl -s $MAIN/deploy-calico.sh | /bin/bash
+###
+  echo $STAGE > ./${STAGE_FILE}
+fi
+###
+
+# 10 clearance 
 STAGE=$[${STAGE}+1]
 ###
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
@@ -286,25 +311,9 @@ echo " - Kubernetes installation elapsed: $ELAPSED sec, approximately $MINUTE ~ 
 echo " - Kubernetes paltform: "
 echo " - Total nodes: $TOTAL"
 echo " - With masters: $N_MASTER"
-FILE=approve-pem.sh
-if [ ! -f "$FILE" ]; then
-  cat > $FILE << EOF
-#!/bin/bash
-CSRS=\$(kubectl get csr | grep Pending | awk -F ' ' '{print \$1}')
-if [ -n "\$CSRS" ]; then
-  for CSR in \$CSRS; do
-    kubectl certificate approve \$CSR
-  done
-fi
-EOF
-  chmod +x $FILE
-fi
-echo " - For a little while, use the script ./$FILE to approve kubelet certificate."
-echo " - use 'kubectl get csr' to check the register."
 ## make backup
 THIS_DIR=$(cd "$(dirname "$0")";pwd)
 curl -s $TOOLS/mk-backup.sh | /bin/bash
 echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - backup important info from $THIS_DIR to /var/k8s/bak."
 sleep $WAIT 
-./${FILE}
 exit 0
