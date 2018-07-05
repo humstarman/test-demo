@@ -100,11 +100,11 @@ MASTER=$(echo $MASTER | tr "," " ")
 N_MASTER=$(echo $MASTER | wc -w)
 #echo $N_MASTER
 [[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $N_MASTER masters: $(cat ./master.csv)."
-if [ -z "$NODES" ]; then
+if [ -z "$NODE" ]; then
   NODE_EXISTENCE=false
 else
   NODE_EXISTENCE=true
-  echo $NODE > ./node.sh
+  echo $NODE > ./node.csv
 fi
 if $NODE_EXISTENCE; then
   NODE=$(echo $NODE | tr "," " ")
@@ -115,8 +115,8 @@ if $NODE_EXISTENCE; then
 else
   [[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - no node to install."
 fi
-echo $VIP > ./vip.csv
-[[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - virtual IP: $(cat ./vip.csv)."
+echo $VIP > ./vip.info
+[[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - virtual IP: $(cat ./vip.info)."
 echo $PASSORD > ./passwd.log
 # mk env file
 FILE=info.env
