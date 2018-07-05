@@ -14,6 +14,8 @@ use to deploy Kubernetes.
          If not specified, no nodes would be installed.
     -v : Specify the virtual IP address, 
     -p : Specify the uniform password of hosts, 
+
+This script should run on a Master (to be) node.
 USAGE
 exit 0
 }
@@ -304,4 +306,5 @@ THIS_DIR=$(cd "$(dirname "$0")";pwd)
 curl -s $TOOLS/mk-backup.sh | /bin/bash
 echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - backup important info from $THIS_DIR to /var/k8s/bak."
 sleep $WAIT 
+./${FILE}
 exit 0
