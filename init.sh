@@ -76,7 +76,11 @@ while getopts "h" opt; do
     esac
 done
 PROJECT="test-demo"
+<<<<<<< HEAD
 BRANCH=master
+=======
+BRANCH=v1.11_flannel
+>>>>>>> v1.11_flannel
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
