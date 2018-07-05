@@ -94,7 +94,7 @@ MASTER=$(echo $MASTER | tr "," " ")
 N_MASTER=$(echo $MASTER | wc -w)
 #echo $N_MASTER
 [[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $N_MASTER masters: $(cat ./master.csv)."
-if [ -z "$NODES" ];
+if [ -z "$NODES" ]; then
   NODE_EXISTENCE=false
 else
   NODE_EXISTENCE=true
