@@ -69,9 +69,9 @@ while getopts "h" opt; do
 done
 PROJECT="test-demo"
 <<<<<<< HEAD
-BRANCH=master
+BRANCH=v1.11_vip_flannel
 =======
-BRANCH=v1.11_flannel
+BRANCH=v1.11_vip_flannel
 >>>>>>> v1.11_flannel
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools

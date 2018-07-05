@@ -70,7 +70,7 @@ getScript () {
   chmod +x ./$SCRIPT
 }
 PROJECT="test-demo"
-BRANCH=master
+BRANCH=v1.11_vip_flannel
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
