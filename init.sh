@@ -117,7 +117,7 @@ else
 fi
 echo $VIP > ./vip.info
 [[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - virtual IP: $(cat ./vip.info)."
-echo $PASSORD > ./passwd.log
+echo $PASSWD > ./passwd.log
 # mk env file
 FILE=info.env
 if [ ! -f "$FILE" ]; then
