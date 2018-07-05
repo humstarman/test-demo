@@ -4,13 +4,16 @@ set -e
 
 show_help () {
 cat << USAGE
-usage: $0 [ -m MASTER(S) ] [ -n NODE(S) ] [ -v VIRTUAL-IP ]
+usage: $0 [ -m MASTER(S) ] [ -n NODE(S) ] [ -v VIRTUAL-IP ] [ -p PASSORD ]
+use to deploy Kubernetes.
+
     -m : Specify the IP address(es) of Master node(s). If multiple, set the images in term of csv, 
          as 'master-ip-1,master-ip-2,master-ip-3'.
     -n : Specify the IP address(es) of Node node(s). If multiple, set the images in term of csv, 
          as 'node-ip-1,node-ip-2,node-ip-3'.
          If not specified, no nodes would be installed.
     -v : Specify the virtual IP address, 
+    -p : Specify the uniform password of hosts, 
 USAGE
 exit 0
 }
@@ -25,6 +28,8 @@ while getopts "hm:v:n:" opt; do # 选项后面的冒号表示该选项需要参�
     v)  VIP=$OPTARG
         ;;
     n)  NODE=$OPTARG
+        ;;
+    p)  PASSWD=$OPTARG
         ;;
     ?)  # 当有不认识的选项的时候arg为?
         echo "unkonw argument"
@@ -43,6 +48,7 @@ fi
 }
 chk_var -m $MASTER
 chk_var -v $VIP
+chk_var -p $PASSWD
 
 START=$(date +%s)
 WAIT=3
@@ -111,6 +117,7 @@ else
 fi
 echo $VIP > ./vip.csv
 [[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - virtual IP: $(cat ./vip.csv)."
+echo $PASSORD > ./passwd.log
 # mk env file
 FILE=info.env
 if [ ! -f "$FILE" ]; then
