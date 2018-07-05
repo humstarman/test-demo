@@ -2,6 +2,48 @@
 
 set -e
 
+show_help () {
+cat << USAGE
+usage: $0 [ -m MASTER(S) ] [ -n NODE(S) ] [ -v VIRTUAL-IP ]
+    -m : Specify the IP address(es) of Master node(s). If multiple, set the images in term of csv, 
+         as 'master-ip-1,master-ip-2,master-ip-3'.
+    -n : Specify the IP address(es) of Node node(s). If multiple, set the images in term of csv, 
+         as 'node-ip-1,node-ip-2,node-ip-3'.
+         If not specified, no nodes would be installed.
+    -v : Specify the virtual IP address, 
+USAGE
+exit 0
+}
+
+# Get Opts
+while getopts "hm:v:c:" opt; do # 选项后面的冒号表示该选项需要参数
+    case "$opt" in
+    h)  show_help
+        ;;
+    m)  MASTER=$OPTARG # 参数存在$OPTARG中
+        ;;
+    v)  VIP=$OPTARG
+        ;;
+    n)  NODE=$OPTARG
+        ;;
+    ?)  # 当有不认识的选项的时候arg为?
+        echo "unkonw argument"
+        exit 1
+        ;;
+    esac
+done
+[ -z "$*" ] && show_help
+
+chk_var () {
+if [ -z "$2" ]; then
+  echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - no input for \"$1\", try \"$0 -h\"."
+  sleep 3
+  exit 1
+fi
+}
+chk_var -m $MASTER
+chk_var -v $VIP
+
 START=$(date +%s)
 WAIT=3
 STAGE=0
@@ -19,68 +61,8 @@ getScript () {
   curl -s -o ./$SCRIPT $URL/$SCRIPT
   chmod +x ./$SCRIPT
 }
-show_help () {
-cat << USAGE
-usage: $0
-  To use this auto deployment tool, master and node (nonessential) info should be offered.
-  As an instance:
-  - generate a file named master.csv (node.csv),
-  - master (node) IPs are in terms of CSV, as {MASTER_IP_1},{MASTER_IP_2},{MASTER_IP_3}.
-  -
-  In addition, if all the hosts staisfy that:
-  === all the ssh usernames are root,
-  === all the ssh passwords are the same.
-  put the password into ./passwd.log
-  -
-  After master, node and password info configured, run this script.
-USAGE
-if [[ "0" == "$INIT" ]]; then
-  cat << USAGE
-  ---
-  ---
-  ---
-  If you run the script for the first time,
-  the help document shown for default.
-  Re-run the script to function.
-  ---
-USAGE
-  FILE=master.csv.tmpl
-  if [ ! -f "$FILE" ]; then
-    touch $FILE 
-    echo "1.1.1.1,1.1.1.2,1.1.1.3" > $FILE
-    sed -i s/" "/","/g $FILE
-  fi
-  FILE2=node.csv.tmpl
-  [ -f "$FILE2" ] || cp $FILE $FILE2 
-  FILE=passwd.log.tmpl
-  if [ ! -f "$FILE" ]; then 
-    touch $FILE
-    echo "ssh-passwod" > $FILE
-  fi
-fi
-sleep $WAIT
-exit 0
-}
-if [[ "0" == "$INIT" ]]; then
-  show_help
-fi  
-# Get Opts
-while getopts "h" opt; do 
-    case "$opt" in
-    h)  show_help
-        ;;
-    ?)
-        echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [ERROR] - unkonw argument."
-        exit 1
-        ;;
-    esac
-done
 PROJECT="test-demo"
-<<<<<<< HEAD
 BRANCH=master
-=======
-BRANCH=v1.11_flannel
->>>>>>> v1.11_flannel
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
 TOOLS=${URL}/tools
 THIS_FILE=$0
@@ -105,30 +87,30 @@ if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
     fi
   fi
 fi
-[[ "$(cat ./${STAGE_FILE})" == "0" ]] && curl -s $TOOLS/check-master-node.sh | /bin/bash
 [[ "$(cat ./${STAGE_FILE})" == "0" ]] && curl -s $TOOLS/check-ansible.sh | /bin/bash
-MASTER=$(sed s/","/" "/g ./master.csv)
+echo $MASTER > ./master.csv
+MASTER=$(echo $MASTER | tr "," " ")
 #echo $MASTER
-N_MASTER=$(echo $MASTER | wc | awk -F ' ' '{print $2}')
+N_MASTER=$(echo $MASTER | wc -w)
 #echo $N_MASTER
 [[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $N_MASTER masters: $(cat ./master.csv)."
-NODE_EXISTENCE=true
-if [ ! -f ./node.csv ]; then
+if [ -z "$NODES" ];
   NODE_EXISTENCE=false
 else
-  if [ -z "$(cat ./node.csv)" ]; then
-    NODE_EXISTENCE=false
-  fi
+  NODE_EXISTENCE=true
+  echo $NODE > ./node.sh
 fi
 if $NODE_EXISTENCE; then
-  NODE=$(sed s/","/" "/g ./node.csv)
+  NODE=$(echo $NODE | tr "," " ")
   #echo ${NODE}
-  N_NODE=$(echo $NODE | wc | awk -F ' ' '{print $2}')
+  N_NODE=$(echo $NODE | wc -w)
   #echo $N_NODE
   [[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - $N_NODE nodes: $(cat ./node.csv)."
 else
   [[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - no node to install."
 fi
+echo $VIP > ./vip.csv
+[[ "$(cat ./${STAGE_FILE})" == "0" ]] && echo "$(date -d today +'%Y-%m-%d %H:%M:%S') - [INFO] - virtual IP: $(cat ./vip.csv)."
 # mk env file
 FILE=info.env
 if [ ! -f "$FILE" ]; then
@@ -139,6 +121,7 @@ export NODE_EXISTENCE=$NODE_EXISTENCE
 export NODE="$NODE"
 export N_NODE=$N_NODE
 export URL=$URL
+export VIP=$VIP
 EOF
 fi
 ###
@@ -245,6 +228,7 @@ STAGE=$[${STAGE}+1]
 if [[ "$(cat ./${STAGE_FILE})" < "$STAGE" ]]; then
 ###
   curl -s $MAIN/deploy-master.sh | /bin/bash
+  curl -s $MAIN/deploy-ha.sh | /bin/bash
 ###
   echo $STAGE > ./${STAGE_FILE}
 fi
@@ -280,7 +264,7 @@ N_MASTER=$(echo $MASTER | wc -w)
 if [ ! -f ./node.csv ]; then
   N_NODE=0
 else
-  NODE=$(sed s/","/" "/g ./node.csv)
+  NODE=$(cat ./node.csv | tr "," " ")
   N_NODE=$(echo $NODE | wc -w)
   [ -z "$N_NODE" ] && N_NODE=0
 fi 
