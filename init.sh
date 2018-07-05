@@ -19,7 +19,7 @@ exit 0
 }
 
 # Get Opts
-while getopts "hm:v:n:" opt; do # 选项后面的冒号表示该选项需要参数
+while getopts "hm:v:n:p:" opt; do # 选项后面的冒号表示该选项需要参数
     case "$opt" in
     h)  show_help
         ;;
