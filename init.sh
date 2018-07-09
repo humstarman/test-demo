@@ -72,7 +72,8 @@ getScript () {
 PROJECT="test-demo"
 BRANCH=v1.11_vip_calico
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
-TOOLS=https://raw.githubusercontent.com/humstarman/${PROJECT}-static/master/tools
+TOOLS=${URL}/tools
+#TOOLS=https://raw.githubusercontent.com/humstarman/${PROJECT}-static/master/tools
 THIS_FILE=$0
 PREFIX=$THIS_FILE
 PREFIX=${PREFIX##*/}
