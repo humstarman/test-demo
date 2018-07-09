@@ -72,7 +72,7 @@ getScript () {
 PROJECT="test-demo"
 BRANCH=v1.11_vip_calico
 URL=https://raw.githubusercontent.com/humstarman/${PROJECT}-impl/${BRANCH}
-TOOLS=${URL}/tools
+TOOLS=https://raw.githubusercontent.com/humstarman/${PROJECT}-static/master/tools
 THIS_FILE=$0
 PREFIX=$THIS_FILE
 PREFIX=${PREFIX##*/}
@@ -86,7 +86,7 @@ MAIN=${URL}/${PREFIX}
 if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
   if [ ! -x "$(command -v curl)" ]; then
     if [ -x "$(command -v yum)" ]; then
-      yum makecache
+      yum makecache fast
       yum install -y curl
     fi
     if [ -x "$(command -v apt-get)" ]; then
