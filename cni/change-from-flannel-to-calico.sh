@@ -33,7 +33,7 @@ if [[ "0" == "$INIT" ]]; then
   ---
   ---
   If you run the script for the first time,
-  the help document shown for default.
+  the help document shown by default.
   Re-run the script to function.
   ---
 USAGE
