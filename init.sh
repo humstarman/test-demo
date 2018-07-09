@@ -96,6 +96,7 @@ if [[ "$(cat ./${STAGE_FILE})" == "0" ]]; then
     fi
   fi
 fi
+curl -s -O $MAIN/version
 [[ "$(cat ./${STAGE_FILE})" == "0" ]] && curl -s $TOOLS/check-ansible.sh | /bin/bash
 echo $MASTER > ./master.csv
 MASTER=$(echo $MASTER | tr "," " ")
