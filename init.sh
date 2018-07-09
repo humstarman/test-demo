@@ -12,8 +12,8 @@ use to deploy Kubernetes.
     -n : Specify the IP address(es) of Node node(s). If multiple, set the images in term of csv, 
          as 'node-ip-1,node-ip-2,node-ip-3'.
          If not specified, no nodes would be installed.
-    -v : Specify the virtual IP address, 
-    -p : Specify the uniform password of hosts, 
+    -v : Specify the virtual IP address. 
+    -p : Specify the uniform password of hosts. 
 
 This script should run on a Master (to be) node.
 USAGE
